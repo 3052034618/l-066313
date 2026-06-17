@@ -69,7 +69,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setExamRecordsState(getExamRecords());
     
     const storedReminders = getReminders();
-    if (storedReminders.length === 0) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    const hasTodayStudyReminder = storedReminders.some(
+      (r) => r.type === 'study' && r.date === todayStr
+    );
+    
+    if (!hasTodayStudyReminder && getUserProfile().targetCertificateId) {
+      const todayReminder: StudyReminder = {
+        id: `reminder-study-${todayStr}`,
+        type: 'study',
+        title: '今日学习提醒',
+        content: `今天的学习时间到了！每天${getUserProfile().dailyReminderTime || '20:00'}，坚持学习，顺利通关！`,
+        date: todayStr,
+        read: false,
+      };
+      const updatedReminders = [todayReminder, ...storedReminders];
+      setRemindersState(updatedReminders);
+      setReminders(updatedReminders);
+    } else if (storedReminders.length === 0) {
       setRemindersState(defaultReminders);
       setReminders(defaultReminders);
     } else {

@@ -8,7 +8,7 @@ import { getDaysRemaining, getOverallProgress, getTodayTask, formatTime } from '
 import { certificates } from '@/data/mockData';
 
 export const Dashboard: React.FC = () => {
-  const { userProfile, studyPlan, wrongQuestions, reminders, examRecords } = useApp();
+  const { userProfile, studyPlan, wrongQuestions, reminders, examRecords, markReminderRead } = useApp();
 
   const todayTask = getTodayTask(studyPlan);
   const daysRemaining = getDaysRemaining(userProfile.examDate);
@@ -181,28 +181,69 @@ export const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {unreadReminders > 0 && (
-        <Card className="mb-4">
-          <div className="p-4">
-            <h3 className="font-semibold text-text-primary mb-3">🔔 学习提醒</h3>
-            <div className="space-y-2">
-              {reminders.filter((r) => !r.read).slice(0, 3).map((reminder) => (
+      <Card className="mb-4">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-text-primary">🔔 学习提醒</h3>
+            {userProfile.dailyReminderTime && (
+              <span className="text-xs text-text-tertiary">
+                每日 {userProfile.dailyReminderTime} 提醒
+              </span>
+            )}
+          </div>
+          <div className="space-y-2">
+            {reminders.filter((r) => !r.read).length > 0 ? (
+              reminders.filter((r) => !r.read).slice(0, 5).map((reminder) => (
                 <div
                   key={reminder.id}
-                  className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                  className={`p-3 rounded-lg border ${
+                    reminder.type === 'exam-7' || reminder.type === 'exam-3' || reminder.type === 'exam-1'
+                      ? 'bg-orange-50 border-orange-200'
+                      : 'bg-yellow-50 border-yellow-200'
+                  }`}
+                  onClick={() => markReminderRead(reminder.id)}
                 >
-                  <h4 className="font-medium text-yellow-800 text-sm">
-                    {reminder.title}
-                  </h4>
-                  <p className="text-xs text-yellow-700 mt-1 line-clamp-2">
-                    {reminder.content}
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg">
+                      {reminder.type === 'exam-7' || reminder.type === 'exam-3' || reminder.type === 'exam-1'
+                        ? '🔥'
+                        : reminder.type === 'study'
+                        ? '⏰'
+                        : '📢'}
+                    </span>
+                    <div className="flex-1">
+                      <h4 className={`font-medium text-sm ${
+                        reminder.type === 'exam-7' || reminder.type === 'exam-3' || reminder.type === 'exam-1'
+                          ? 'text-orange-800'
+                          : 'text-yellow-800'
+                      }`}>
+                        {reminder.title}
+                      </h4>
+                      <p className={`text-xs mt-1 line-clamp-2 ${
+                        reminder.type === 'exam-7' || reminder.type === 'exam-3' || reminder.type === 'exam-1'
+                          ? 'text-orange-700'
+                          : 'text-yellow-700'
+                      }`}>
+                        {reminder.content}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-text-tertiary">
+                <p className="text-lg mb-1">✅</p>
+                <p className="text-sm">今天没有待处理的提醒</p>
+              </div>
+            )}
           </div>
-        </Card>
-      )}
+          {reminders.filter((r) => !r.read).length > 5 && (
+            <p className="text-center text-xs text-text-tertiary mt-3">
+              还有 {reminders.filter((r) => !r.read).length - 5} 条未读提醒
+            </p>
+          )}
+        </div>
+      </Card>
     </PageLayout>
   );
 };

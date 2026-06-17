@@ -5,7 +5,7 @@ import { Card } from '@/components/UI/Card';
 import { ProgressBar } from '@/components/UI/ProgressBar';
 import { useApp } from '@/context/AppContext';
 import { formatTime, formatDate, getOverallProgress } from '@/utils/studyPlan';
-import { chapters } from '@/data/mockData';
+import { getChaptersByCertificate } from '@/data/mockData';
 
 export const StudyPlan: React.FC = () => {
   const { studyPlan } = useApp();
@@ -45,7 +45,7 @@ export const StudyPlan: React.FC = () => {
 
   const chapterProgress = () => {
     const result: { chapterId: string; chapterName: string; total: number; completed: number }[] = [];
-    const certChapters = chapters.filter((c) => c.certificateId === studyPlan.certificateId);
+    const certChapters = getChaptersByCertificate(studyPlan.certificateId);
 
     certChapters.forEach((chapter) => {
       const chapterTasks = studyPlan.dailyTasks.filter((t) => t.chapterId === chapter.id);

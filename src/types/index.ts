@@ -110,6 +110,7 @@ export interface UserProfile {
   targetCertificateId: string | null;
   examDate: string | null;
   dailyStudyTime: number;
+  dailyReminderTime: string;
   initialLevel: number;
   studyStreak: number;
   totalStudyTime: number;

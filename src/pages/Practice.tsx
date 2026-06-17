@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components/Layout/PageLayout';
 import { Card } from '@/components/UI/Card';
 import { useApp } from '@/context/AppContext';
-import { chapters, getQuestionsByChapter } from '@/data/mockData';
+import { getChaptersByCertificate, getQuestionsByChapter } from '@/data/mockData';
 
 export const Practice: React.FC = () => {
   const { studyPlan, userProfile } = useApp();
 
-  const certChapters = chapters.filter((c) => c.certificateId === userProfile.targetCertificateId);
+  const certChapters = getChaptersByCertificate(userProfile.targetCertificateId || '');
 
   const getChapterProgress = (chapterId: string): number => {
     if (!studyPlan) return 0;

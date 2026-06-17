@@ -50,6 +50,7 @@ export const defaultUserProfile: UserProfile = {
   targetCertificateId: null,
   examDate: null,
   dailyStudyTime: 60,
+  dailyReminderTime: '20:00',
   initialLevel: 50,
   studyStreak: 0,
   totalStudyTime: 0,

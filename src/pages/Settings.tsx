@@ -17,6 +17,7 @@ export const Settings: React.FC = () => {
   );
   const [examDate, setExamDate] = useState<string>(userProfile.examDate || '');
   const [dailyStudyTime, setDailyStudyTime] = useState<number>(userProfile.dailyStudyTime);
+  const [dailyReminderTime, setDailyReminderTime] = useState<string>(userProfile.dailyReminderTime);
   const [initialLevel, setInitialLevel] = useState<number>(userProfile.initialLevel);
   const [showLevelTest, setShowLevelTest] = useState(false);
   const [levelTestResult, setLevelTestResult] = useState<number | null>(null);
@@ -34,6 +35,7 @@ export const Settings: React.FC = () => {
   };
 
   const handleFinishSetup = () => {
+    updateUserProfile({ dailyReminderTime });
     createStudyPlan(
       selectedCertificate!,
       examDate,
@@ -134,6 +136,20 @@ export const Settings: React.FC = () => {
               <p className="text-text-primary font-medium">
                 {userProfile.dailyStudyTime} 分钟
               </p>
+            </div>
+            <div>
+              <label className="text-sm text-text-secondary block mb-1">每日提醒时间</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="time"
+                  value={userProfile.dailyReminderTime}
+                  onChange={(e) => updateUserProfile({ dailyReminderTime: e.target.value })}
+                  className="px-3 py-2 border border-border rounded-lg focus:border-primary focus:outline-none"
+                />
+                <span className="text-xs text-text-tertiary">
+                  系统将在每天此时提醒你学习
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -282,6 +298,23 @@ export const Settings: React.FC = () => {
                 {time}分钟
               </button>
             ))}
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="p-4">
+          <h3 className="font-semibold text-text-primary mb-4">🔔 每日提醒时间</h3>
+          <div className="flex items-center gap-4">
+            <input
+              type="time"
+              value={dailyReminderTime}
+              onChange={(e) => setDailyReminderTime(e.target.value)}
+              className="px-4 py-3 border border-border rounded-lg focus:border-primary focus:outline-none text-lg"
+            />
+            <span className="text-sm text-text-tertiary">
+              系统将在每天此时推送学习提醒
+            </span>
           </div>
         </div>
       </Card>

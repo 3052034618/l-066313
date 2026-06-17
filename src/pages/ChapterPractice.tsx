@@ -10,7 +10,7 @@ import type { Question } from '@/types';
 export const ChapterPractice: React.FC = () => {
   const { chapterId } = useParams<{ chapterId: string }>();
   const navigate = useNavigate();
-  const { addWrongQuestion, studyPlan, updateDailyTask } = useApp();
+  const { addWrongQuestion, studyPlan, updateDailyTask, addLearningTrend } = useApp();
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,6 +73,52 @@ export const ChapterPractice: React.FC = () => {
           updateDailyTask(todayTask.id, true, todayTask.questionCount);
         }
       }
+
+      const today = new Date().toISOString().split('T')[0];
+      const kpStats: Record<string, { total: number; correct: number; name: string }> = {};
+      
+      questions.forEach((q) => {
+        if (q.type === 'subjective') return;
+        if (!kpStats[q.knowledgePointId]) {
+          kpStats[q.knowledgePointId] = { total: 0, correct: 0, name: '' };
+          const kp = chapter?.knowledgePoints.find((k) => k.id === q.knowledgePointId);
+          if (kp) kpStats[q.knowledgePointId].name = kp.name;
+        }
+        kpStats[q.knowledgePointId].total++;
+        
+        const userAnswer = answers[q.id];
+        if (userAnswer) {
+          let isCorrect = false;
+          if (Array.isArray(q.answer)) {
+            if (Array.isArray(userAnswer)) {
+              isCorrect = q.answer.length === userAnswer.length &&
+                q.answer.every((a) => userAnswer.includes(a));
+            }
+          } else {
+            isCorrect = userAnswer === q.answer;
+          }
+          if (isCorrect) kpStats[q.knowledgePointId].correct++;
+        }
+      });
+      
+      const correctCount = getCorrectCount();
+      const objectiveQuestions = questions.filter((q) => q.type !== 'subjective');
+      const overallAccuracy = objectiveQuestions.length > 0
+        ? Math.round((correctCount / objectiveQuestions.length) * 100)
+        : 0;
+      
+      const knowledgePointRates = Object.entries(kpStats).map(([id, stats]) => ({
+        knowledgePointId: id,
+        knowledgePointName: stats.name,
+        correctRate: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0,
+      }));
+      
+      addLearningTrend({
+        date: today,
+        correctRate: overallAccuracy,
+        totalQuestions: objectiveQuestions.length,
+        knowledgePointRates,
+      });
     }
   };
 

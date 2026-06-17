@@ -5,7 +5,7 @@ import { Card } from '@/components/UI/Card';
 import { Button } from '@/components/UI/Button';
 import { QuestionCard } from '@/components/Question/QuestionCard';
 import { useApp } from '@/context/AppContext';
-import { getMockExamQuestions, certificates } from '@/data/mockData';
+import { getMockExamQuestions, certificates, getKnowledgePointById, getChapterByKnowledgePoint } from '@/data/mockData';
 import type { Question, ExamRecord, ExamQuestionAnswer } from '@/types';
 
 export const MockExam: React.FC = () => {
@@ -109,7 +109,8 @@ export const MockExam: React.FC = () => {
 
       const kpId = q.knowledgePointId;
       if (!kpStats[kpId]) {
-        kpStats[kpId] = { name: kpId, total: 0, correct: 0 };
+        const kp = getKnowledgePointById(kpId);
+        kpStats[kpId] = { name: kp?.name || kpId, total: 0, correct: 0 };
       }
       kpStats[kpId].total++;
       if (isCorrect) {
@@ -307,7 +308,20 @@ export const MockExam: React.FC = () => {
                 </div>
               ))}
             </div>
-            <Button variant="outline" className="w-full mt-4" size="sm">
+            <Button 
+              variant="outline" 
+              className="w-full mt-4" 
+              size="sm"
+              onClick={() => {
+                const weakestKp = weakPoints[0];
+                if (weakestKp) {
+                  const chapter = getChapterByKnowledgePoint(weakestKp.knowledgePointId);
+                  if (chapter) {
+                    navigate(`/practice/chapter/${chapter.id}`);
+                  }
+                }
+              }}
+            >
               去强化薄弱章节
             </Button>
           </div>
