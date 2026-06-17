@@ -259,8 +259,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const existingIndex = prev.findIndex((t) => t.date === trend.date);
       let updated: LearningTrend[];
       if (existingIndex >= 0) {
+        const existing = prev[existingIndex];
+        const mergedKpRates = [...existing.knowledgePointRates];
+        
+        trend.knowledgePointRates.forEach((newKp) => {
+          const existingKpIndex = mergedKpRates.findIndex(
+            (k) => k.knowledgePointId === newKp.knowledgePointId
+          );
+          if (existingKpIndex >= 0) {
+            const existingKp = mergedKpRates[existingKpIndex];
+            mergedKpRates[existingKpIndex] = {
+              ...existingKp,
+              correctRate: Math.round((existingKp.correctRate + newKp.correctRate) / 2),
+            };
+          } else {
+            mergedKpRates.push(newKp);
+          }
+        });
+
+        const totalQuestions = existing.totalQuestions + trend.totalQuestions;
+        const correctRate = Math.round(
+          (existing.correctRate * existing.totalQuestions + trend.correctRate * trend.totalQuestions) /
+          totalQuestions
+        );
+
+        const mergedTrend: LearningTrend = {
+          ...existing,
+          correctRate,
+          totalQuestions,
+          knowledgePointRates: mergedKpRates,
+        };
+
         updated = [...prev];
-        updated[existingIndex] = trend;
+        updated[existingIndex] = mergedTrend;
       } else {
         updated = [...prev, trend];
       }

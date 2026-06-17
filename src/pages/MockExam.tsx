@@ -327,6 +327,58 @@ export const MockExam: React.FC = () => {
           </div>
         </Card>
 
+        <Card className="mb-4">
+          <div className="p-4">
+            <h3 className="font-semibold text-text-primary mb-3">📝 答题详情</h3>
+            <div className="space-y-3">
+              {questions.map((q, idx) => {
+                const answer = examResult.answers.find((a) => a.questionId === q.id);
+                const userAnswer = answer?.userAnswer || '';
+                return (
+                  <div key={q.id} className="p-3 bg-bg-tertiary rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-text-primary">
+                        第{idx + 1}题 [{q.type === 'single' ? '单选' : q.type === 'multiple' ? '多选' : q.type === 'judge' ? '判断' : '主观'}]
+                      </span>
+                      {q.type !== 'subjective' && (
+                        <span className={`text-xs px-2 py-0.5 rounded ${answer?.isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {answer?.isCorrect ? '正确' : '错误'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-text-secondary mb-2 line-clamp-2">{q.content}</p>
+                    {q.type === 'subjective' ? (
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-text-tertiary mb-1">你的答案：</p>
+                          <div className="p-2 bg-white rounded text-sm whitespace-pre-wrap">
+                            {userAnswer || '未作答'}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-success mb-1">参考答案：</p>
+                          <div className="p-2 bg-green-50 rounded text-sm whitespace-pre-wrap border border-green-200">
+                            {q.answer}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex gap-4 text-xs">
+                        <span className="text-text-tertiary">
+                          你的答案：<span className="text-text-primary">{Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer || '未作答'}</span>
+                        </span>
+                        <span className="text-text-tertiary">
+                          正确答案：<span className="text-success">{Array.isArray(q.answer) ? q.answer.join(', ') : q.answer}</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Card>
+
         <div className="flex gap-3">
           <Button variant="outline" className="flex-1" onClick={() => navigate('/analysis')}>
             查看详细分析

@@ -44,6 +44,7 @@ export const Analysis: React.FC = () => {
   const [viewMode, setViewMode] = useState<'overview' | 'trend' | 'records'>('overview');
   const [timeRange, setTimeRange] = useState<'week' | 'month'>('week');
   const [selectedKP, setSelectedKP] = useState<string | null>(null);
+  const [showFullReport, setShowFullReport] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   const fullReportRef = useRef<HTMLDivElement>(null);
 
@@ -262,7 +263,14 @@ export const Analysis: React.FC = () => {
   };
 
   const exportPDF = async () => {
-    if (!fullReportRef.current) return;
+    setShowFullReport(true);
+    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    
+    if (!fullReportRef.current) {
+      setShowFullReport(false);
+      return;
+    }
 
     try {
       const canvas = await html2canvas(fullReportRef.current, {
@@ -293,6 +301,8 @@ export const Analysis: React.FC = () => {
     } catch (error) {
       console.error('PDF导出失败:', error);
       alert('PDF导出失败，请重试');
+    } finally {
+      setShowFullReport(false);
     }
   };
 
@@ -438,7 +448,7 @@ export const Analysis: React.FC = () => {
                   </h3>
                   {getWeakPoints().length > 0 ? (
                     <div className="space-y-2">
-                      {getWeakPoints().map((kp, _idx) => (
+                      {getWeakPoints().map((kp, idx) => (
                         <div key={kp.knowledgePointId} className="flex items-center gap-3">
                           <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 text-xs flex items-center justify-center flex-shrink-0">
                             {idx + 1}
@@ -484,7 +494,7 @@ export const Analysis: React.FC = () => {
                   </h3>
                   {getStrongPoints().length > 0 ? (
                     <div className="space-y-2">
-                      {getStrongPoints().map((kp, _idx) => (
+                      {getStrongPoints().map((kp, idx) => (
                         <div key={kp.knowledgePointId} className="flex items-center gap-3">
                           <span className="w-6 h-6 rounded-full bg-green-100 text-green-600 text-xs flex items-center justify-center flex-shrink-0">
                             {idx + 1}
@@ -784,8 +794,9 @@ export const Analysis: React.FC = () => {
         </div>
       </PageLayout>
 
-      <div ref={fullReportRef} className="hidden">
-        <div className="p-8 bg-white" style={{ width: '210mm' }}>
+      {showFullReport && (
+        <div ref={fullReportRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+          <div className="p-8 bg-white" style={{ width: '210mm' }}>
           <h1 className="text-2xl font-bold text-center mb-6">学习报告</h1>
           <p className="text-center text-gray-500 mb-6">
             生成日期：{new Date().toLocaleDateString('zh-CN')}
@@ -919,7 +930,8 @@ export const Analysis: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+        </div>
+      )}
     </>
   );
 };

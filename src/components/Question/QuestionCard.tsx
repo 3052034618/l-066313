@@ -243,7 +243,12 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             ) : (
               <textarea
                 value={subjectiveAnswer}
-                onChange={(e) => setSubjectiveAnswer(e.target.value)}
+                onChange={(e) => {
+                  setSubjectiveAnswer(e.target.value);
+                  if (onAnswer) {
+                    onAnswer(e.target.value);
+                  }
+                }}
                 placeholder="请输入你的答案..."
                 className="w-full h-40 p-3 border-2 border-border rounded-lg focus:border-primary focus:outline-none resize-none"
               />
